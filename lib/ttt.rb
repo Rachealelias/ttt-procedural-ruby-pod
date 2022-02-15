@@ -55,19 +55,20 @@ def input_to_index(user_input)
     
     
     #find, if and else 
-    def game_status
+    
     WIN_COMBINATIONS = [
         [0, 1, 2],
         [3, 4, 5],
         [6, 7, 8],
+        [0, 3, 6],
         [1, 4, 7],
         [2, 5, 8],
         [0, 4, 8],
-        [2, 4, 6] # cannot be [2,4,6]
+        [6, 4, 2] # cannot be [2,4,6]
     ]
 
     def won?(board) 
-        WIN_COMBINATIONS.each do |wc| #wc is short for winning combination
+        WIN_COMBINATIONS.find do |wc|
             win_index_1 = wc[0]
             win_index_2 = wc[1]
             win_index_3 = wc[2]
@@ -76,36 +77,27 @@ def input_to_index(user_input)
             position_2 = board[win_index_2]
             position_3 = board[win_index_3]
             
-            if position_1 == position_2 && position_2 == position_3 && position_taken?(board, win_index_1)
-                return wc
-            end # comparing the position to each other and return the winning combo 
+    
+            position_1 == position_2 && position_2 == position_3 && position_taken?(board, win_index_1)
         end
-        return false
     end
+    
     
     def full?(board) 
         board.all? { |i| i == "X" || i == "O"} #if the board full with either X or O
     end
     
     def draw?(board)
-        if !won?(board) && full?(board) #No winner and the board is full
-            return true
-        elsif !won?(board) && !full?(board) #
-            return false
-        else won?(board)
-            return false
-        end
+        !won?(board) && full?(board)  #No winner and the board is full
     end
     
     def over?(board)
-        if draw?(board) || won?(board) || full?(board)
-            return true
-        end
+        draw?(board) || won?(board)
     end
     
     def winner(board)
-        if won?(board) #won method was define on line 73
-            return board[won?(board)[0]]
+        if wc = won?(board) #won method was define on line 73
+            return board[wc[0]]
         end
     end
     
@@ -115,19 +107,15 @@ def input_to_index(user_input)
             turn(board) # turn method was define in line 44
             counter += 1
         end
+        puts won?(board) ? "Woohoo! #{winner(board)}" : "Sorry. Try again..."   
     end
     
     def current_player(board)
         turn_count(board) % 2 == 0? "X" : "O"
+        # turn_count(board).even? ? "X" : "O"
     end
     
     def turn_count(board)
-        counter = 0
-        board.each {|space|
-        if space == "X" || space == "O"
-        counter += 1
-        end
-        }
-        counter
+        board.count { |space| space == "X" || space == "O"}
     end
-    end
+    
